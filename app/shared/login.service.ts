@@ -16,13 +16,13 @@ export class LoginService {
     headers.append("Content-Type", "application/json");
 
     return this.http.post(
-      BackendService.apiUrl + "Users",
+      BackendService.apiUrl + "api/users",
       JSON.stringify({
-        Username: user.email,
-        Email: user.email,
-        Password: user.password
+        name: user.email,
+        email: user.email,
+        password: user.password
       }),
-      { headers: headers }
+      { headers: headers}
     )
     .catch(this.handleErrors);
   }
@@ -32,9 +32,9 @@ export class LoginService {
     headers.append("Content-Type", "application/json");
 
     return this.http.post(
-      BackendService.apiUrl + "oauth/token",
+      BackendService.apiUrl + "auth/local",
       JSON.stringify({
-        username: user.email,
+        email: user.email,
         password: user.password,
         grant_type: "password"
       }),
@@ -42,7 +42,7 @@ export class LoginService {
     )
     .map(response => response.json())
     .do(data => {
-      BackendService.token = data.Result.access_token;
+      BackendService.token = data.token;
     })
     .catch(this.handleErrors);
   }

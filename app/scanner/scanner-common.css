@@ -1,0 +1,23 @@
+.initial-container {
+    margin-top: 170;
+}
+.initial-logo {
+    horizontal-align: center;
+    margin-bottom: 10;
+}
+.initial-label {
+    color: white;
+    horizontal-align: center;
+    margin-bottom: 80;
+}
+.initial-button {
+    background-color: white;
+    color: #CB1D00;
+    height: 45;
+    width: 275;
+    vertical-align: center;
+}
+.initial-button-label {
+    horizontal-align: center;
+    font-weight: bold;
+}

@@ -4,7 +4,7 @@ import { getString, setString } from "application-settings";
 const tokenKey = "token";
 
 export class BackendService {
-  static apiUrl = "https://api.everlive.com/v1/GWfRtXi1Lwt4jcqK/";
+  static apiUrl = "http://10.0.3.2:9000/";
 
   static isLoggedIn(): boolean {
     return !!getString("token");

@@ -4,11 +4,12 @@ import { NativeScriptHttpModule } from "nativescript-angular/http";
 import { NativeScriptRouterModule } from "nativescript-angular/router";
 
 import { authProviders, appRoutes } from "./app.routing";
+import { BarcodeScanner} from "nativescript-barcodescanner";
 import { AppComponent } from "./app.component";
 import { setStatusBarColors, BackendService, LoginService } from "./shared";
 
 import { LoginModule } from "./login/login.module";
-import { GroceriesModule } from "./groceries/groceries.module";
+import { ScannerAppModule } from "./scanner/scanner.module";
 
 setStatusBarColors();
 
@@ -16,6 +17,7 @@ setStatusBarColors();
   providers: [
     BackendService,
     LoginService,
+    BarcodeScanner,
     authProviders
   ],
   imports: [
@@ -24,7 +26,7 @@ setStatusBarColors();
     NativeScriptRouterModule,
     NativeScriptRouterModule.forRoot(appRoutes),
     LoginModule,
-    GroceriesModule,
+    ScannerAppModule
   ],
   declarations: [
       AppComponent,
