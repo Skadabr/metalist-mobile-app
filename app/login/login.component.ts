@@ -21,12 +21,12 @@ export class LoginComponent implements OnInit {
   isAuthenticating = false;
 
 
-  @ViewChild("initialContainer") initialContainer: ElementRef;
-  @ViewChild("mainContainer") mainContainer: ElementRef;
-  @ViewChild("logoContainer") logoContainer: ElementRef;
-  @ViewChild("formControls") formControls: ElementRef;
-  @ViewChild("signUpStack") signUpStack: ElementRef;
-  @ViewChild("password") password: ElementRef;
+  // @ViewChild("initialContainer") initialContainer: ElementRef;
+  // @ViewChild("mainContainer") mainContainer: ElementRef;
+  // //@ViewChild("logoContainer") logoContainer: ElementRef;
+  // @ViewChild("formControls") formControls: ElementRef;
+  // @ViewChild("signUpStack") signUpStack: ElementRef;
+  // @ViewChild("password") password: ElementRef;
 
   constructor(private router: Router,
     private userService: LoginService,
@@ -36,10 +36,11 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {
     this.page.actionBarHidden = true;
+    //this. showMainContent();
   }
 
   focusPassword() {
-    this.password.nativeElement.focus();
+    ///this.password.nativeElement.focus();
   }
 
   submit() {
@@ -67,6 +68,7 @@ export class LoginComponent implements OnInit {
         () => {
           this.isAuthenticating = false;
           this.router.navigate(["/"]);
+
         },
         (error) => {
           alert("Unfortunately we could not find your account.");
@@ -86,7 +88,7 @@ export class LoginComponent implements OnInit {
         () => {
           alert("Your account was successfully created.");
           this.isAuthenticating = false;
-          this.toggleDisplay();
+          //this.toggleDisplay();
         },
         (message) => {
           // TODO: Verify this works
@@ -107,7 +109,7 @@ export class LoginComponent implements OnInit {
       defaultText: "",
       okButtonText: "Ok",
       cancelButtonText: "Cancel"
-    }).then((data) => {
+    }.toString()).then((data) => {
       if (data.result) {
         this.userService.resetPassword(data.text.trim())
           .subscribe(() => {
@@ -121,50 +123,43 @@ export class LoginComponent implements OnInit {
 
   toggleDisplay() {
     this.isLoggingIn = !this.isLoggingIn;
-    let mainContainer = <View>this.mainContainer.nativeElement;
-    mainContainer.animate({
-      backgroundColor: this.isLoggingIn ? new Color("white") : new Color("#301217"),
-      duration: 200
-    });
+    // let mainContainer = <View>this.mainContainer.nativeElement;
+    // mainContainer.animate({
+    //   backgroundColor: this.isLoggingIn ? new Color("white") : new Color("#301217"),
+    //   duration: 200
+    // });
   }
 
-  startBackgroundAnimation(background) {
-    background.animate({
-      scale: { x: 1.0, y: 1.0 },
-      duration: 10000
-    });
-  }
-
-  showMainContent() {
-    let initialContainer = <View>this.initialContainer.nativeElement;
-    let mainContainer = <View>this.mainContainer.nativeElement;
-    let logoContainer = <View>this.logoContainer.nativeElement;
-    let formControls = <View>this.formControls.nativeElement;
-    let signUpStack = <View>this.signUpStack.nativeElement;
-    let animations = [];
-
-    // Fade out the initial content over one half second
-    initialContainer.animate({
-      opacity: 0,
-      duration: 500
-    }).then(function() {
-      // After the animation completes, hide the initial container and
-      // show the main container and logo. The main container and logo will
-      // not immediately appear because their opacity is set to 0 in CSS.
-      initialContainer.style.visibility = "collapse";
-      mainContainer.style.visibility = "visible";
-      logoContainer.style.visibility = "visible";
-
-      // Fade in the main container and logo over one half second.
-      animations.push({ target: mainContainer, opacity: 1, duration: 500 });
-      animations.push({ target: logoContainer, opacity: 1, duration: 500 });
-
-      // Slide up the form controls and sign up container.
-      animations.push({ target: signUpStack, translate: { x: 0, y: 0 }, opacity: 1, delay: 500, duration: 150 });
-      animations.push({ target: formControls, translate: { x: 0, y: 0 }, opacity: 1, delay: 650, duration: 150 });
-
-      // Kick off the animation queue
-      new Animation(animations, false).play();
-    });
-  }
-}
+//   showMainContent() {
+//     let initialContainer = <View>this.initialContainer.nativeElement;
+//     let mainContainer = <View>this.mainContainer.nativeElement;
+//     //let logoContainer = <View>this.logoContainer.nativeElement;
+//     let formControls = <View>this.formControls.nativeElement;
+//     let signUpStack = <View>this.signUpStack.nativeElement;
+//     let animations = [];
+//
+//     // Fade out the initial content over one half second
+//     initialContainer.animate({
+//       opacity: 0,
+//       duration: 500
+//     }).then(function() {
+//       // After the animation completes, hide the initial container and
+//       // show the main container and logo. The main container and logo will
+//       // not immediately appear because their opacity is set to 0 in CSS.
+//       initialContainer.style.visibility = "collapse";
+//       mainContainer.style.visibility = "visible";
+//       //logoContainer.style.visibility = "visible";
+//
+//       // Fade in the main container and logo over one half second.
+//       animations.push({ target: mainContainer, opacity: 1, duration: 500 });
+//       //animations.push({ target: logoContainer, opacity: 1, duration: 500 });
+//
+//       // Slide up the form controls and sign up container.
+//       animations.push({ target: signUpStack, translate: { x: 0, y: 0 }, opacity: 1, delay: 500, duration: 150 });
+//       animations.push({ target: formControls, translate: { x: 0, y: 0 }, opacity: 1, delay: 650, duration: 150 });
+//
+//       // Kick off the animation queue
+//       new Animation(animations, false).play();
+//     });
+//   }
+ }

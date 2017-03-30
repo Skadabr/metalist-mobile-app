@@ -1,22 +1,35 @@
 <GridLayout #container
+            clas="initial-container"
             rows="auto, auto, *">
-
-    <StackLayout #initialContainer
-                 class="initial-container">
-        <Image
-                src="res://logo_login"
-                stretch="none"
-                class="initial-logo"></Image>
-        <Label
-                text="GROCERIES"
-                class="initial-label"></Label>
-        <StackLayout
-                (tap)="scan()"
-                class="initial-button">
-            <Label
-                    text="Scan"
-                    class="initial-button-label"></Label>
+    <FlexboxLayout flexDirection="column">
+        <FlexboxLayout flexDirection="row-reverse">
+            <Button flexGrow="1" class="btn btn-primary btn-active" style="text-align: right; margin-right: 20; width: 100;" text="log off" (tap)="logoff()"></Button>
+        </FlexboxLayout>
+        <FlexboxLayout flexDirection="column">
+            <!-- Use even flexGrow to achieve uniform grid -->
+            <Button class="btn initial-button" text="Выбрать трибуну" (tap)="displayActionDialog()"></Button>
+            <!--<Label text="&#xf12a; Icon" class="font-awesome" style="font-size: 45"></Label>-->
+        </FlexboxLayout>
+        <FlexboxLayout flexDirection="row">
+            <!-- Use even flexGrow to achieve uniform grid -->
+            <Label flexGrow="1"  text="{{'Трибуна: ' + tribune}}" style="margin-left: 20;"></Label>
+            <Label flexGrow="2"  text="{{count + ' активных билетов'}}" style="text-align: right; margin-right: 20;"></Label>
+        </FlexboxLayout>
+        <FlexboxLayout flexDirection="column">
+            <!-- Use even flexGrow to achieve uniform grid -->
+            <Label *ngIf="message" flexGrow="1" class="p-15 text-center font-weight-bold" text="{{ message }}"></Label>
+            <Label *ngIf="ticket.headline" flexGrow="2" class="p-15 text-center font-weight-bold" text="{{'Матч: ' + ticket.headline}}"></Label>
+            <Label *ngIf="ticket.tribune" flexGrow="3" class="p-15 text-center font-weight-bold" text="{{'Трибуна: ' + ticket.tribune}}"></Label>
+            <Label *ngIf="ticket.sector" flexGrow="4" class="p-15 text-center font-weight-bold" text="{{'Сектор: ' + ticket.sector}}"></Label>
+            <Label *ngIf="ticket.row" flexGrow="4" class="p-15 text-center font-weight-bold" text="{{'Ряд: ' + ticket.row}}"></Label>
+            <Label *ngIf="ticket.seat" flexGrow="4" class="p-15 text-center font-weight-bold" text="{{'Место: ' + ticket.seat}}"></Label>
+            <Label *ngIf="color" flexGrow="5" class="p-15 text-center font-weight-bold" height="100" backgroundColor="{{ color }}"></Label>
+        </FlexboxLayout>
+        <StackLayout flexDirection="column">
+            <!-- Use even flexGrow to achieve uniform grid -->
+            <Button class="btn btn-primary" height="80" text="Scan" (tap)="scan()"></Button>
         </StackLayout>
-    </StackLayout>
+        <!-- << flexbox-direction-html -->
+    </FlexboxLayout>
 
 </GridLayout>

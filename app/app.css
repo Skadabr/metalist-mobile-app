@@ -1,3 +1,5 @@
+@import '~/css/core.light.css'; 
+
 @import url("~/platform.css");
 
 Page {
@@ -10,8 +12,8 @@ Page {
   background-size: cover;
 }
 ActionBar {
-  background-color: black;
-  color: white;
+  background-color: white;
+  color: black;
 }
 TextField {
   padding: 10;
@@ -19,4 +21,8 @@ TextField {
 }
 .line-through {
   text-decoration: line-through;
+}
+
+.font-awesome {
+  font-family: FontAwesome;
 }

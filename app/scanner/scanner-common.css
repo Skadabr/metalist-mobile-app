@@ -1,19 +1,32 @@
+.background {
+    background-image: url("res://background");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
 .initial-container {
     margin-top: 170;
+    font-family: FontAwesome;
 }
+
+Button {
+    background-color: #FFF713;
+}
+
 .initial-logo {
     horizontal-align: center;
     margin-bottom: 10;
 }
 .initial-label {
-    color: white;
+    color: #ffeffc;
     horizontal-align: center;
     margin-bottom: 80;
 }
 .initial-button {
     background-color: white;
-    color: #CB1D00;
-    height: 45;
+    color: brown;
+    height: 80;
     width: 275;
     vertical-align: center;
 }
