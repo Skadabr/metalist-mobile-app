@@ -6,6 +6,8 @@ import { BarcodeScanner} from "nativescript-barcodescanner";
 import { Page } from "ui/page";
 import * as dialogs from "ui/dialogs";
 
+let applicationSettings = require("application-settings");
+
 @Component({
     selector: "first",
     templateUrl: "scanner/scanner.component.html",
@@ -15,6 +17,7 @@ import * as dialogs from "ui/dialogs";
 
 export class ScannerComponent implements OnInit {
     isLoading: boolean;
+    offline: boolean;
     switchFlash:boolean;
     ticketStatusImage: string;
     errorMessage: string;
@@ -23,6 +26,7 @@ export class ScannerComponent implements OnInit {
     role: string;
     count: number;
     tribunes: string[];
+    tickets: any[];
     ticket: {};
 
     constructor(private router: Router,
@@ -30,6 +34,7 @@ export class ScannerComponent implements OnInit {
                 private barcodeScanner: BarcodeScanner,
                 private ticketService: TicketService,
                 private page: Page) {
+        this.offline = false;
         this.message = '';
         this.switchFlash = false;
         this.isLoading = false;
@@ -42,6 +47,11 @@ export class ScannerComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.getUser();
+        this.page.actionBarHidden = true;
+    }
+
+    getUser() {
         this.ticketService
             .loadUser()
             .subscribe(
@@ -50,8 +60,19 @@ export class ScannerComponent implements OnInit {
                     console.log(this.role);
                 },
                 error =>  this.errorMessage = <any>error);
+    }
 
-        this.page.actionBarHidden = true;
+    loadTicketsForCheck() {
+        this.ticketService
+            .loadTickets()
+            .subscribe(
+                tickets => {
+                    console.log('tickets count', tickets.length);
+                    applicationSettings.clear();
+                    applicationSettings.setString("tickets", JSON.stringify(tickets));
+                },
+                error =>  this.errorMessage = <any>error
+            );
     }
 
     toggleFlashLights() {
@@ -90,21 +111,6 @@ export class ScannerComponent implements OnInit {
         });
     }
 
-    translate(direction) {
-        if (direction == 'Северная') { return 'north'}
-        // if (direction == 'Южная') { return 'south'}
-        if (direction == 'Восточная') { return 'east'}
-        if (direction == 'Западная') { return 'west'}
-        if (direction == 'VIP') { return 'vip'}
-    }
-
-    translateRu(direction) {
-        if (direction == 'north') { return 'Северная'}
-        if (direction == 'south') { return 'Южная'}
-        if (direction == 'east') { return 'Восточная'}
-        if (direction == 'west') { return 'Западная'}
-    }
-
     getTranslateTribune(ticket) {
        ticket.tribune = this.translateRu(ticket.tribune);
        return  ticket;
@@ -132,38 +138,82 @@ export class ScannerComponent implements OnInit {
             resultDisplayDuration: 0   // Android only, default 1500 (ms), set to 0 to disable echoing the scanned text
         }).then( (result) => {
                 this.changeLoadingStatus(true);
-                this.ticketService
-                    .checkTicketStatus(this.translate(this.tribune), result.text)
-                    .subscribe(
-                        data => {
-                            this.message = '';
-                            if (!data.ticket) {
-                                this.message = data.message;
-                                this.count = data.count;
-                                this.ticketStatusImage = "res://notok";
-                            } else {
-                                this.ticket = this.getTranslateTribune(data.ticket);
-                                this.count = data.count;
-
-                                if ( data.message ){
-                                    this.message = data.message;
-                                    this.ticketStatusImage = "res://othertribune";
-                                    return;
-                                }
-                                this.ticketStatusImage = "res://ok";
-                                return;
-                            }
-                            this.changeLoadingStatus(false);
-                        },
-                        error =>  {
-                            this.isLoading = false;
-                            this.errorMessage = <any>error;
-                            console.log(this.errorMessage);
-                        });
+                if (!this.offline) {
+                    this.checkTicketOnline(result.text);
+                } else {
+                    this.checkTicketOffline(result.text);
+                }
             },
             (error) => {
                 console.log("No scan: " + error);
             }
         );
+    }
+
+    checkTicketOnline(code) {
+        this.ticketService
+            .checkTicketStatus(this.translate(this.tribune), code)
+            .subscribe(
+                data => {
+                    this.message = '';
+                    if (!data.ticket) {
+                        this.message = data.message;
+                        this.count = data.count;
+                        this.ticketStatusImage = "res://notok";
+                    } else {
+                        this.ticket = this.getTranslateTribune(data.ticket);
+                        this.count = data.count;
+
+                        if ( data.message ){
+                            this.message = data.message;
+                            this.ticketStatusImage = "res://othertribune";
+                            return;
+                        }
+                        this.ticketStatusImage = "res://ok";
+                        return;
+                    }
+                    this.changeLoadingStatus(false);
+                },
+                error =>  {
+                    this.isLoading = false;
+                    this.errorMessage = <any>error;
+                    console.log(this.errorMessage);
+                });
+    }
+
+    checkTicketOffline(code) {
+        let tickets = applicationSettings.getString("tickets"),
+            defaultTickets = JSON.parse(tickets),
+            ticketIndex = defaultTickets.findIndex(ticket => ticket.accessCode === code);
+
+        if ( ticketIndex < 0 ) {
+            this.message = "Билет не действительный";
+            this.ticket = {};
+            this.ticketStatusImage = "res://notok";
+        } else {
+            let ticket = defaultTickets[ticketIndex];
+
+            if (ticket.tribune !== this.tribune) {
+                this.message = "Другая трибуна";
+                this.ticket = ticket;
+                this.ticketStatusImage = "res://othertribune";
+            }
+        }
+
+    }
+
+    translate(direction) {
+        if (direction == 'Северная') { return 'north'}
+        // if (direction == 'Южная') { return 'south'}
+        if (direction == 'Восточная') { return 'east'}
+        if (direction == 'Западная') { return 'west'}
+        if (direction == 'VIP') { return 'vip'}
+    }
+
+    translateRu(direction) {
+        if (direction == 'north') { return 'Северная'}
+        if (direction == 'south') { return 'Южная'}
+        if (direction == 'east') { return 'Восточная'}
+        if (direction == 'west') { return 'Западная'}
     }
 }

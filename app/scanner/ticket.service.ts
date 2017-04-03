@@ -21,6 +21,17 @@ export class TicketService {
             .catch(this.handleErrors);
     }
 
+    loadTickets() {
+        let headers = this.getHeaders();
+        headers.append("X-Everlive-Sort", JSON.stringify({ ModifiedAt: -1 }));
+
+        return this.http.get(BackendService.apiUrl + "api/tickets/sold-tickets", {
+            headers: headers
+        })
+            .map(res => res.json())
+            .catch(this.handleErrors);
+    }
+
     checkTicketStatus(tribune, code) {
         let headers = this.getHeaders();
         headers.append("X-Everlive-Sort", JSON.stringify({ ModifiedAt: -1 }));
