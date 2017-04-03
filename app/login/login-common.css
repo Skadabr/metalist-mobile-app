@@ -44,6 +44,7 @@
   background-color: white;
 }
 .label {
+  margin-top: 30;
   text-align: center;
   color: #f5f9e7;
 }
@@ -59,15 +60,18 @@ Button, TextField {
 }
 TextField {
   color: #ffffff;
+  font-size: 14;
   placeholder-color: #ffffff;
 }
 TextField.light {
   color: #C4AFB4;
-  placeholder-color: #C4AFB4;
+  font-size: 14;
+  placeholder-color: #f6f707;
 }
 .submit-button {
   background-color: #f6f707;
   font-weight: bold;
+  height: 60;
   color: #0c026a;
   margin-top: 20;
 }

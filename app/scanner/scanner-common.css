@@ -1,22 +1,26 @@
 .background {
-    background-image: url("res://background");
+    background-image: url("res://bg");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
 }
 
 .initial-container {
-    margin-top: 170;
+
     font-family: FontAwesome;
+    margin-bottom: 40;
 }
 
-Button {
-    background-color: #FFF713;
+.button-scan {
+    background-color: #f6f707;
+    font-weight: bold;
+    color: #16282c;
 }
 
-.initial-logo {
-    horizontal-align: center;
+.initial-logoff {
+    horizontal-align: right;
     margin-bottom: 10;
+    width: 100;
 }
 .initial-label {
     color: #ffeffc;
@@ -24,13 +28,34 @@ Button {
     margin-bottom: 80;
 }
 .initial-button {
-    background-color: white;
-    color: brown;
-    height: 80;
+    background-color: yellow;
+    margin-top: 40;
+    font-weight: bold;
+    color: #16282c;
+    height: 60;
     width: 275;
-    vertical-align: center;
 }
 .initial-button-label {
     horizontal-align: center;
     font-weight: bold;
+}
+/*.status-image {*/
+    /*height: 100;*/
+/*}*/
+
+.flash-icon {
+    height: 40;
+}
+
+.white {
+    font-size: 16;
+    color: white;
+}
+
+.margin-left {
+    margin-left: 30;
+}
+
+.margin-right {
+    margin-right: 30;
 }

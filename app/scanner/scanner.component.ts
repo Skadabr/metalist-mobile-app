@@ -14,13 +14,14 @@ import * as dialogs from "ui/dialogs";
 })
 
 export class ScannerComponent implements OnInit {
+    isLoading: boolean;
+    switchFlash:boolean;
+    ticketStatusImage: string;
     errorMessage: string;
     message: string;
     tribune: string;
     role: string;
     count: number;
-    color: string;
-    tickets: any[];
     tribunes: string[];
     ticket: {};
 
@@ -30,17 +31,14 @@ export class ScannerComponent implements OnInit {
                 private ticketService: TicketService,
                 private page: Page) {
         this.message = '';
+        this.switchFlash = false;
+        this.isLoading = false;
         this.role = '';
-        this.color = '';
+        this.ticketStatusImage = '';
         this.count = 0;
         this.tribune = '';
         this.tribunes = ['east', 'west', 'north', 'vip'];
-        this.ticket = {
-            // headline: 'metalist-dynamo',
-            // tribune: 'west',
-            // seat: '5',
-            // role: 'steward'
-        };
+        this.ticket = {};
     }
 
     ngOnInit() {
@@ -56,14 +54,18 @@ export class ScannerComponent implements OnInit {
         this.page.actionBarHidden = true;
     }
 
+    toggleFlashLights() {
+        this.switchFlash = !this.switchFlash;
+    }
+
     logoff() {
         this.loginService.logoff();
         this.router.navigate(["/login"]);
     }
 
-    getCountTicketsByTribune() {
+    getCountTicketsByTribune(tribune) {
         this.ticketService
-            .getCountTicketsByTribune(this.tribune)
+            .getCountTicketsByTribune(tribune)
             .subscribe(
                 count => {
                     this.count = count;
@@ -75,25 +77,48 @@ export class ScannerComponent implements OnInit {
         let options = {
             title: "Выберите трибуну",
             message: "Choose your race",
-            // cancelButtonText: "Отмена",
-            actions: ['east', 'west', 'north', 'vip']
+            actions: ['Восточная', 'Западная', 'Северная', 'VIP']
         };
         dialogs.action(options).then((result) => {
-            console.log(result);
-            this.tribune = result;
-            if (this.tribune) {
-                this.message = '';
-                this.getCountTicketsByTribune();
+            this.tribune = result ? result : '';
+            console.log("result " + result);
+            if (result) {
+                this.getCountTicketsByTribune( this.translate(result) );
+            } else {
+                this.count = 0;
             }
         });
     }
 
-    scan() {
+    translate(direction) {
+        if (direction == 'Северная') { return 'north'}
+        // if (direction == 'Южная') { return 'south'}
+        if (direction == 'Восточная') { return 'east'}
+        if (direction == 'Западная') { return 'west'}
+        if (direction == 'VIP') { return 'vip'}
+    }
 
-        if (this.role !== 'steward') {
-            this.message = 'У вас должны быть права стюарта.';
-            return;
-        }
+    translateRu(direction) {
+        if (direction == 'north') { return 'Северная'}
+        if (direction == 'south') { return 'Южная'}
+        if (direction == 'east') { return 'Восточная'}
+        if (direction == 'west') { return 'Западная'}
+    }
+
+    getTranslateTribune(ticket) {
+       ticket.tribune = this.translateRu(ticket.tribune);
+       return  ticket;
+    }
+
+    changeLoadingStatus(status) {
+        this.isLoading = status;
+    }
+
+    scan() {
+        // if (this.role !== 'steward') {
+        //     this.message = 'У вас должны быть права стюарда.';
+        //     return;
+        // }
         if (!this.tribune) {
             this.message = 'Выберите трибуну.';
             return;
@@ -102,38 +127,36 @@ export class ScannerComponent implements OnInit {
         this.barcodeScanner.scan({
             formats: "CODE_128",   // Pass in of you want to restrict scanning to certain types
             message: "Use the volume buttons for extra light", // Android only, default is 'Place a barcode inside the viewfinder rectangle to scan it.'
-            showFlipCameraButton: false,   // default false
-            preferFrontCamera: false,     // default false
-            showTorchButton: true,        // default false
             beepOnScan: true,            // Play or Suppress beep on scan (default true)
-            torchOn: false,               // launch with the flashlight on (default false)
-            resultDisplayDuration: 0,   // Android only, default 1500 (ms), set to 0 to disable echoing the scanned text
-            orientation: "landscape",     // Android only, optionally lock the orientation to either "portrait" or "landscape"
-            openSettingsIfPermissionWasPreviouslyDenied: true // On iOS you can send the user to the settings app if access was previously denied
+            torchOn: this.switchFlash,               // launch with the flashlight on (default false)
+            resultDisplayDuration: 0   // Android only, default 1500 (ms), set to 0 to disable echoing the scanned text
         }).then( (result) => {
+                this.changeLoadingStatus(true);
                 this.ticketService
-                    .checkTicketStatus(this.tribune, result.text)
+                    .checkTicketStatus(this.translate(this.tribune), result.text)
                     .subscribe(
                         data => {
+                            this.message = '';
                             if (!data.ticket) {
                                 this.message = data.message;
                                 this.count = data.count;
-                                this.color = 'red';
-                                return;
-                            }
-                            if ( data.message ){
-                                this.message = data.message;
+                                this.ticketStatusImage = "res://notok";
+                            } else {
+                                this.ticket = this.getTranslateTribune(data.ticket);
                                 this.count = data.count;
-                                this.ticket = data.ticket;
-                                this.color = 'yellow';
+
+                                if ( data.message ){
+                                    this.message = data.message;
+                                    this.ticketStatusImage = "res://othertribune";
+                                    return;
+                                }
+                                this.ticketStatusImage = "res://ok";
                                 return;
                             }
-                            this.count = data.count;
-                            this.ticket = data.ticket;
-                            this.color = 'green';
-                            return;
+                            this.changeLoadingStatus(false);
                         },
                         error =>  {
+                            this.isLoading = false;
                             this.errorMessage = <any>error;
                             console.log(this.errorMessage);
                         });
