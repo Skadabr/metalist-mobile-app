@@ -5,7 +5,7 @@
     <FlexboxLayout flexDirection="column">
         <FlexboxLayout flexDirection="row-reverse">
             <Button flexGrow="1" class="btn initial-logoff" text="log off" (tap)="logoff()"></Button>
-            <Button flexGrow="2" class="btn initial-logoff" text="Load tickets" (tap)="loadTicketsForCheck()"></Button>
+            <Button flexGrow="2" class="btn initial-logoff" [text]="offline ? 'Offline' : 'Online'" (tap)="toogleMode()"></Button>
         </FlexboxLayout>
         <FlexboxLayout flexDirection="column">
             <Button class="btn initial-button" text="ВЫБРАТЬ ТРИБУНУ" (tap)="displayActionDialog()" fontSize="20"></Button>
@@ -52,13 +52,15 @@
                 </FormattedString>
             </Label>
         </FlexboxLayout>
-        <FlexboxLayout flexDirection="column" height="150">
+        <FlexboxLayout flexDirection="column" height="100">
             <!--<Label flexGrow="3" class="text-center font-weight-bold white">-->
                 <!--<FormattedString>-->
                     <!--<Span  text="Загрузка..." fontSize="16"></Span>-->
                 <!--</FormattedString>-->
             <!--</Label>-->
-            <Image  flexGrow="5" class="text-center status-image" [src]="ticketStatusImage"></Image>
+            <Image  flexGrow="5" *ngIf="status === 'other'" class="text-center status-image" src="res://othertribune"></Image>
+            <Image  flexGrow="5" *ngIf="status === 'notOk'" class="text-center status-image" src="res://notok"></Image>
+            <Image  flexGrow="5" *ngIf="status === 'ok'" class="text-center status-image" src="res://ok"></Image>
         </FlexboxLayout>
         <StackLayout class="initial-container">
             <Button class="btn button-scan" height="80" text="SCAN" (tap)="scan()" fontSize="20"></Button>
