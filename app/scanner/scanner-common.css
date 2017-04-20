@@ -1,23 +1,63 @@
-.initial-container {
-    margin-top: 170;
+.background {
+    background-image: url("res://bg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
 }
-.initial-logo {
-    horizontal-align: center;
+
+.initial-container {
+    font-family: FontAwesome;
+    margin-bottom: 40;
+}
+
+.button-scan {
+    background-color: #f6f707;
+    font-weight: bold;
+    color: #16282c;
+}
+
+.initial-logoff {
+    horizontal-align: right;
+    background-color: yellow;
+    color: #16282c;
     margin-bottom: 10;
+    width: 100;
 }
 .initial-label {
-    color: white;
+    color: #ffeffc;
     horizontal-align: center;
     margin-bottom: 80;
 }
 .initial-button {
-    background-color: white;
-    color: #CB1D00;
-    height: 45;
+    background-color: yellow;
+    margin-top: 10;
+    font-weight: bold;
+    color: #16282c;
+    height: 60;
     width: 275;
-    vertical-align: center;
 }
 .initial-button-label {
     horizontal-align: center;
     font-weight: bold;
+}
+
+.flash-icon {
+    height: 40;
+}
+
+.white {
+    font-size: 16;
+    color: white;
+}
+
+.margin-left {
+    margin-left: 30;
+}
+
+.margin-right {
+    margin-right: 30;
+}
+
+.status-image {
+    margin-top: 20;
 }

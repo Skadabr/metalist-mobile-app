@@ -1,22 +1,70 @@
 <GridLayout #container
+            class="background"
+            clas="initial-container"
             rows="auto, auto, *">
-
-    <StackLayout #initialContainer
-                 class="initial-container">
-        <Image
-                src="res://logo_login"
-                stretch="none"
-                class="initial-logo"></Image>
-        <Label
-                text="GROCERIES"
-                class="initial-label"></Label>
-        <StackLayout
-                (tap)="scan()"
-                class="initial-button">
-            <Label
-                    text="Scan"
-                    class="initial-button-label"></Label>
+    <FlexboxLayout flexDirection="column">
+        <FlexboxLayout flexDirection="row-reverse" style="margin-top: 40;">
+            <Button flexGrow="1" class="btn initial-logoff" text="Выйти" (tap)="logoff()"></Button>
+            <Button flexGrow="2" class="btn initial-logoff" [text]="offline ? 'Offline' : 'Online'" (tap)="toogleMode()"></Button>
+        </FlexboxLayout>
+        <FlexboxLayout flexDirection="column">
+            <Button class="btn initial-button"  *ngIf="role === 'steward'" text="ВЫБРАТЬ ТРИБУНУ" (tap)="displaySelectTribuneDialog()" fontSize="22"></Button>
+            <Image class="text-center flash-icon" [src]="switchFlash ? 'res://flashon' : 'res://flashoff'" (tap)="toggleFlashLights()"></Image>
+        </FlexboxLayout>
+        <FlexboxLayout flexDirection="column" height="60">
+            <Label class="text-center white" flexGrow="1">
+                <FormattedString>
+                    <Span  text="{{'Трибуна: ' + tribune + ' - ' + count + ' aктивных билетов'}}" fontSize="16"></Span>
+                </FormattedString>
+            </Label>
+            <Label *ngIf="message" flexGrow="1"  class="text-center font-weight-bold white">
+                <FormattedString>
+                    <Span text="{{ message }}" fontSize="20"></Span>
+                </FormattedString>
+            </Label>
+            <Label *ngIf="ticket.headline" flexGrow="2" class="text-center font-weight-bold white" >
+                <FormattedString>
+                    <Span text="{{'Матч: ' + ticket.headline}}" fontSize="18"></Span>
+                </FormattedString>
+            </Label>
+        </FlexboxLayout>
+        <FlexboxLayout flexDirection="row" height="30">
+            <Label *ngIf="ticket.tribune" flexGrow="1" class="text-left font-weight-bold white margin-left">
+                <FormattedString>
+                    <Span  text="{{'Трибуна: ' + ticket.tribune}}" fontSize="18"></Span>
+                </FormattedString>
+            </Label>
+            <Label *ngIf="ticket.sector" flexGrow="2" class="text-right font-weight-bold white margin-right" >
+                <FormattedString>
+                    <Span  text="{{'Сектор: ' + ticket.sector}}" fontSize="18"></Span>
+                </FormattedString>
+            </Label>
+        </FlexboxLayout>
+        <FlexboxLayout flexDirection="row" height="30">
+            <Label *ngIf="ticket.row" flexGrow="4"  class="text-left font-weight-bold white margin-left" >
+                <FormattedString>
+                    <Span  text="{{'Ряд: ' + ticket.row}}" fontSize="18"></Span>
+                </FormattedString>
+            </Label>
+            <Label *ngIf="ticket.seat" flexGrow="4" class="text-right font-weight-bold white margin-right" >
+                <FormattedString>
+                    <Span  text="{{'Место: ' + ticket.seat}}" fontSize="18"></Span>
+                </FormattedString>
+            </Label>
+        </FlexboxLayout>
+        <FlexboxLayout flexDirection="column" height="100">
+            <Label flexGrow="3" class="text-center font-weight-bold white" *ngIf="isLoading">
+                <FormattedString>
+                    <Span  text="Загрузка..." fontSize="22"></Span>
+                </FormattedString>
+            </Label>
+            <Image  flexGrow="5" *ngIf="status === 'other'" class="text-center status-image" src="res://othertribune"></Image>
+            <Image  flexGrow="5" *ngIf="status === 'notOk'" class="text-center status-image" src="res://notok"></Image>
+            <Image  flexGrow="5" *ngIf="status === 'ok'" class="text-center status-image" src="res://ok"></Image>
+        </FlexboxLayout>
+        <StackLayout class="initial-container">
+            <Button class="btn button-scan" *ngIf="role === 'steward'" height="80" text="СКАНИРОВАТЬ" (tap)="scan()" fontSize="26"></Button>
         </StackLayout>
-    </StackLayout>
+    </FlexboxLayout>
 
 </GridLayout>
