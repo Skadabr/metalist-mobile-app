@@ -1,8 +1,9 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, NgZone } from "@angular/core";
 import { Router } from "@angular/router";
 import { LoginService, alert } from "../shared";
 import { TicketService } from './ticket.service';
 import { BarcodeScanner} from "nativescript-barcodescanner";
+import {CouchbaseInstance} from "../shared/couchbaseinstance";
 import { Page } from "ui/page";
 import * as dialogs from "ui/dialogs";
 
@@ -12,10 +13,12 @@ let applicationSettings = require("application-settings");
     selector: "first",
     templateUrl: "scanner/scanner.component.html",
     styleUrls: ["scanner/scanner-common.css"],
-    providers: [TicketService, BarcodeScanner]
+    providers: [TicketService, BarcodeScanner/*, CouchbaseInstance*/]
 })
 
 export class ScannerComponent implements OnInit {
+    private database: any;
+
     isLoading: boolean;
     offline: boolean;
     switchFlash:boolean;
@@ -34,15 +37,41 @@ export class ScannerComponent implements OnInit {
                 private loginService: LoginService,
                 private barcodeScanner: BarcodeScanner,
                 private ticketService: TicketService,
+                private ngZone: NgZone,
+                private couchbaseInstance: CouchbaseInstance,
                 private page: Page) {
+        this.ngZone = ngZone;
         this.offline = false;
         this.switchFlash = false;
+        this.tickets = [];
         this.isLoading = false;
         this.role = '';
         this.count = 0;
         this.tribune = '';
         this.tribunes = ['east', 'west', 'north', 'vip'];
         this.sectorsInVip = ['VIP_B', 'VIP_BR', 'VIP_BL', 'VIP_AR', 'VIP_AL', 'SB_1', 'SB_7'];
+        this.database = couchbaseInstance.getDatabase();
+
+        couchbaseInstance.startSync(true);
+
+        this.database.addDatabaseChangeListener((changes) => {
+            let changeIndex;
+            for (let i = 0; i < changes.length; i++) {
+                console.log('documentId', changes[i]._id);
+                let documentId = changes[i].getDocumentId();
+                changeIndex = this.indexOfObjectId(documentId, this.tickets);
+                let document = this.database.getDocument(documentId);
+                this.ngZone.run(() => {
+                    if (changeIndex == -1) {
+                        this.tickets.push(document);
+                    } else {
+                        this.tickets[changeIndex] = document;
+                    }
+                });
+            }
+        });
+
+        this.refreshTickets();
     }
 
     ngOnInit() {
@@ -92,12 +121,12 @@ export class ScannerComponent implements OnInit {
             resultDisplayDuration: 0   // Android only, default 1500 (ms), set to 0 to disable echoing the scanned text
         }).then( (result) => {
                 this.changeLoadingStatus(true);
-
-                if (!this.offline) {
-                    this.checkTicketOnline(result.text);
-                } else {
+                //
+                // if (!this.offline) {
+                //     this.checkTicketOnline(result.text);
+                // } else {
                     this.checkTicketOffline(result.text);
-                }
+                // }
             },
             (error) => {
                 this.changeLoadingStatus(false);
@@ -146,14 +175,21 @@ export class ScannerComponent implements OnInit {
 
     getCountTicketsByTribune(tribune) {
         console.log('tickets count tap', tribune);
-        if (!this.offline) {
-            this.getCountTicketsOnline(tribune);
-        } else {
-            let tickets = applicationSettings.getString("tickets"),
-                defaultTickets = JSON.parse(tickets);
-            console.log('tickets offline', defaultTickets.length);
-            this.getCountTicketsOffline(defaultTickets, tribune);
-        }
+        // if (!this.offline) {
+        //     this.getCountTicketsOnline(tribune);
+        // } else {
+            // let tickets = applicationSettings.getString("tickets"),
+            //     defaultTickets = JSON.parse(tickets);
+        //let tickets = this.tickets.map(ticket => ticket);
+            // for(let i = 0; i < rows.length; i++) {
+            //     console.log('tickets1', rows[i].ticket.tribune);
+            //     tickets.push(rows[i].ticket);
+            // }
+
+            console.log('tickets offline', this.tickets.length);
+            this.getCountTicketsOffline(this.tickets, tribune);
+            this.refreshTickets();
+        //}
     }
 
     getTranslateTribune(ticket) {
@@ -202,26 +238,31 @@ export class ScannerComponent implements OnInit {
     }
 
     checkTicketOffline(code) {
-        let tickets = applicationSettings.getString("tickets"),
-            defaultTickets = JSON.parse(tickets),
-            [ ticket ] = defaultTickets.filter(ticket => (ticket.code === code && ticket.status === 'paid') );
+        //let tickets = applicationSettings.getString("tickets");
+            //defaultTickets = JSON.parse(tickets),
+            let [ ticket ] = this.tickets.filter(ticket => (ticket.shortTicket.code === code && ticket.shortTicket.status === 'paid') );
         this.changeLoadingStatus(false);
 
         if ( !ticket ) {
             this.message = "Билет не действительный";
             this.status = "notOk";
         } else {
+            let ticketId = ticket._id,
+                ticketBody = ticket.shortTicket;
+
             if (this.translate(this.tribune) === 'vip') {
-                ticket = this.checkTicketByVip(ticket);
+                ticket = this.checkTicketByVip(ticketBody);
             } else {
-                ticket = this.checkTicketByTribune(ticket);
+                ticket = this.checkTicketByTribune(ticketBody);
             }
             if (ticket.status === 'used') {
-                let updatedTickets = defaultTickets.filter(ticket => ticket.code !== code);
-                updatedTickets.push(ticket);
+                // let updatedTickets = this.tickets.filter(ticket => ticket.code !== code);
+                // updatedTickets.push(ticket);
+                this.database.updateDocument(ticketId, ticket);
 
-                this.getCountTicketsOffline(updatedTickets, this.translate(this.tribune));
-                applicationSettings.setString("tickets", JSON.stringify(updatedTickets));
+                this.getCountTicketsByTribune(this.translate(this.tribune));
+                this.refreshTickets();
+                //applicationSettings.setString("tickets", JSON.stringify(updatedTickets));
             }
         }
     }
@@ -263,6 +304,7 @@ export class ScannerComponent implements OnInit {
     }
 
     getCountTicketsOffline(tickets, tribune) {
+        console.log('count1', tribune, tickets.length, typeof tickets[2], tickets[2].sector, tickets[2].tribune);
         if ( tribune === 'vip' ) {
             this.count = tickets.filter( ticket => (ticket.status === 'paid' &&  this.sectorsInVip.filter(sector => sector === ticket.sector).length) ).length;
         } else {
@@ -285,5 +327,27 @@ export class ScannerComponent implements OnInit {
         if (direction == 'south') { return 'Южная'}
         if (direction == 'east') { return 'Восточная'}
         if (direction == 'west') { return 'Западная'}
+    }
+
+    private refreshTickets() {
+        this.tickets = [];
+        let rows = this.database.executeQuery("tickets");
+        console.log('rows12345', rows.length);
+        for(let i = 0; i < rows.length; i++) {
+            console.log('tickets1', rows[i]._id, rows[i].shortTicket);
+                this.tickets.push(rows[i]);
+        }
+        console.log('tickets12345', this.tickets.length);
+    }
+
+    private indexOfObjectId(needle: string, haystack: any) {
+        for (let i = 0; i < haystack.length; i++) {
+            if (haystack[i] != undefined && haystack[i].hasOwnProperty("_id")) {
+                if (haystack[i]._id == needle) {
+                    return i;
+                }
+            }
+        }
+        return -1;
     }
 }

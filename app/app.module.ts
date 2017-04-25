@@ -5,6 +5,7 @@ import { NativeScriptRouterModule } from "nativescript-angular/router";
 
 import { authProviders, appRoutes } from "./app.routing";
 import { BarcodeScanner} from "nativescript-barcodescanner";
+import { CouchbaseInstance } from "./shared/couchbaseinstance";
 import { AppComponent } from "./app.component";
 import { setStatusBarColors, BackendService, LoginService } from "./shared";
 
@@ -18,7 +19,8 @@ setStatusBarColors();
     BackendService,
     LoginService,
     BarcodeScanner,
-    authProviders
+    authProviders,
+    CouchbaseInstance
   ],
   imports: [
     NativeScriptModule,
