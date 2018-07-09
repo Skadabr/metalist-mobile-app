@@ -4,7 +4,7 @@ import { getString, setString } from "application-settings";
 const tokenKey = "token";
 
 export class BackendService {
-  static apiUrl = "http://192.168.1.119:9000/";
+  static apiUrl = "https://metalist1925.club/";
 
   static isLoggedIn(): boolean {
     return !!getString("token");
