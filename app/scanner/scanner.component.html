@@ -3,7 +3,7 @@
             clas="initial-container"
             rows="auto, auto, *">
     <FlexboxLayout flexDirection="column">
-        <FlexboxLayout flexDirection="row-reverse">
+        <FlexboxLayout flexDirection="row-reverse" class="margin-top">
             <Button flexGrow="1" class="btn initial-logoff" text="log off" (tap)="logoff()"></Button>
             <Button flexGrow="2" class="btn initial-logoff" [text]="offline ? 'Offline' : 'Online'" (tap)="toogleMode()"></Button>
         </FlexboxLayout>
